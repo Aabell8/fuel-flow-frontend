@@ -142,16 +142,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-              context,
-              new MaterialPageRoute(
-                  builder: (BuildContext context) => new DashboardPage()));
-        },
-        child: Icon(Icons.add),
-        backgroundColor: Colors.amber,
-      ),
     );
   }
 
@@ -171,6 +161,5 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 Future<http.Response> fetchParty(String input) {
-  return http.get(
-      'http://192.168.1.83:5000/parties/$input');
+  return http.get('http://192.168.1.83:5000/parties/$input');
 }

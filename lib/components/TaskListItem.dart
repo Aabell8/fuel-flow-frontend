@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fuelflow/model/person.dart';
 
 class TaskListItem extends ListTile {
-  TaskListItem(Person item)
+  TaskListItem(Person item, VoidCallback verifyDrink)
       : super(
           key: new Key(item.id),
           isThreeLine: false,
@@ -18,9 +18,7 @@ class TaskListItem extends ListTile {
           trailing: item.isRequesting
               ? IconButton(
                   icon: Icon(Icons.thumb_up),
-                  onPressed: () {
-                    print("Clicked ${item.name}");
-                  },
+                  onPressed: verifyDrink,
                 )
               : null,
         );

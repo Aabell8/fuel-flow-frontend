@@ -85,6 +85,21 @@ class DashboardPageState extends State<DashboardPage> {
             children: party.people.toList().map(buildListTile).toList(),
           ),
         ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          backgroundColor: Colors.amber,
+          onPressed: () {
+            sendDrinkRequest(party.id, name).then((response) {
+              if (response.statusCode == 200) {
+                setState(() {
+                  party = Party.fromJson(json.decode(response.body));
+                });
+              } else {
+                print("Invalid request");
+              }
+            });
+          },
+        ),
       );
     } else {
       return new Scaffold(
@@ -96,13 +111,27 @@ class DashboardPageState extends State<DashboardPage> {
   }
 
   Widget buildListTile(Person item) {
-    return TaskListItem(item);
+    return TaskListItem(item, () => verifyDrink(item));
+  }
+
+  void verifyDrink(Person person) {
+    http
+        .put(
+            'http://192.168.1.83:5000/parties/${party.id}/people/${person.id}/verify')
+        .then((response) {
+      if (response.statusCode == 200) {
+        setState(() {
+          party = Party.fromJson(json.decode(response.body));
+        });
+      } else {
+        print("Invalid request");
+      }
+    });
   }
 }
 
 Future<http.Response> postParty() {
-  return http.post(
-      'http://192.168.1.83:5000/parties/');
+  return http.post('http://192.168.1.83:5000/parties/');
 }
 
 Future<http.Response> postPerson(String partyId, String person) {
@@ -110,7 +139,10 @@ Future<http.Response> postPerson(String partyId, String person) {
     "id": person,
     "name": person,
   };
-  return http.put(
-      'http://192.168.1.83:5000/parties/$partyId/people',
+  return http.put('http://192.168.1.83:5000/parties/$partyId/people',
       body: data);
+}
+
+Future<http.Response> sendDrinkRequest(String partyId, String person) {
+  return http.put('http://192.168.1.83:5000/parties/$partyId/people/$person');
 }
