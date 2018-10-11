@@ -71,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: new Center(
         child: Container(
-          margin: EdgeInsets.all(16.0),
+          margin: EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,
@@ -134,6 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       },
                     ),
                   ),
+                  const SizedBox(height: 24.0),
                 ],
               ),
             ],
@@ -157,4 +158,3 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 }
-

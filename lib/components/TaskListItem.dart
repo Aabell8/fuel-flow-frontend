@@ -15,7 +15,7 @@ class TaskListItem extends ListTile {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          trailing: item.isRequesting && name != item.id
+          trailing: item.isRequesting && name.toLowerCase() != item.id.toLowerCase()
               ? IconButton(
                   icon: Icon(Icons.thumb_up),
                   onPressed: verifyDrink,

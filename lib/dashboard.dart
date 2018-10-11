@@ -38,7 +38,7 @@ class DashboardPageState extends State<DashboardPage> {
         if (people[i].name.toLowerCase() == pName.toLowerCase()) {
           setState(() {
             party = widget.party;
-            name = pName;
+            name = people[i].name;
           });
           found = true;
           isRequesting = people[i].isRequesting || false;
@@ -129,7 +129,7 @@ class DashboardPageState extends State<DashboardPage> {
   void verifyDrink(Person person, String verifier) {
     http
         .put(
-            'http://192.168.1.83:5000/parties/${party.id}/people/${person.id}/verify/$verifier')
+            'http://ec2-18-224-171-112.us-east-2.compute.amazonaws.com:5000/parties/${party.id}/people/${person.id}/verify/$verifier')
         .then((response) {
       if (response.statusCode == 200) {
         setState(() {
@@ -146,6 +146,7 @@ class DashboardPageState extends State<DashboardPage> {
       response.statusCode == 200
           ? setState(() {
               party = Party.fromJson(json.decode(response.body));
+              isRequesting = false;
             })
           : showInSnackBar("refresh failed");
     });
