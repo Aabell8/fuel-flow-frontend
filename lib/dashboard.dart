@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:fuelflow/components/TaskListItem.dart';
 import 'package:fuelflow/model/party.dart';
 import 'package:fuelflow/model/person.dart';
+import 'package:fuelflow/service/requests.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:async';
@@ -22,6 +22,9 @@ class DashboardPage extends StatefulWidget {
 class DashboardPageState extends State<DashboardPage> {
   Party party;
   String name;
+  bool isRequesting = false;
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   initState() {
@@ -38,6 +41,7 @@ class DashboardPageState extends State<DashboardPage> {
             name = pName;
           });
           found = true;
+          isRequesting = people[i].isRequesting || false;
         }
       }
       if (!found) {
@@ -75,34 +79,42 @@ class DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     if (party != null) {
       return new Scaffold(
+        key: _scaffoldKey,
         appBar: AppBar(
           title: Text("Party #${party.id}"),
         ),
-        body: new Scrollbar(
-          child: new ListView(
-            scrollDirection: Axis.vertical,
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            children: party.people.toList().map(buildListTile).toList(),
+        body: RefreshIndicator(
+          child: new Scrollbar(
+            child: new ListView(
+              scrollDirection: Axis.vertical,
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              children: party.people.toList().map(buildListTile).toList(),
+            ),
           ),
+          onRefresh: _handleRefresh,
         ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          backgroundColor: Colors.amber,
-          onPressed: () {
-            sendDrinkRequest(party.id, name).then((response) {
-              if (response.statusCode == 200) {
-                setState(() {
-                  party = Party.fromJson(json.decode(response.body));
-                });
-              } else {
-                print("Invalid request");
-              }
-            });
-          },
-        ),
+        floatingActionButton: !isRequesting
+            ? FloatingActionButton(
+                child: Icon(Icons.add),
+                backgroundColor: Colors.amber,
+                onPressed: () {
+                  sendDrinkRequest(party.id, name).then((response) {
+                    if (response.statusCode == 200) {
+                      setState(() {
+                        party = Party.fromJson(json.decode(response.body));
+                        isRequesting = true;
+                      });
+                    } else {
+                      print("Invalid request");
+                    }
+                  });
+                },
+              )
+            : null,
       );
     } else {
       return new Scaffold(
+        key: _scaffoldKey,
         appBar: AppBar(
           title: Text("Loading.."),
         ),
@@ -111,13 +123,13 @@ class DashboardPageState extends State<DashboardPage> {
   }
 
   Widget buildListTile(Person item) {
-    return TaskListItem(item, () => verifyDrink(item));
+    return TaskListItem(item, () => verifyDrink(item, name), name);
   }
 
-  void verifyDrink(Person person) {
+  void verifyDrink(Person person, String verifier) {
     http
         .put(
-            'http://192.168.1.83:5000/parties/${party.id}/people/${person.id}/verify')
+            'http://192.168.1.83:5000/parties/${party.id}/people/${person.id}/verify/$verifier')
         .then((response) {
       if (response.statusCode == 200) {
         setState(() {
@@ -128,21 +140,21 @@ class DashboardPageState extends State<DashboardPage> {
       }
     });
   }
-}
 
-Future<http.Response> postParty() {
-  return http.post('http://192.168.1.83:5000/parties/');
-}
+  Future<Null> _handleRefresh() {
+    return fetchParty(party.id).then((response) {
+      response.statusCode == 200
+          ? setState(() {
+              party = Party.fromJson(json.decode(response.body));
+            })
+          : showInSnackBar("refresh failed");
+    });
+  }
 
-Future<http.Response> postPerson(String partyId, String person) {
-  Map data = {
-    "id": person,
-    "name": person,
-  };
-  return http.put('http://192.168.1.83:5000/parties/$partyId/people',
-      body: data);
-}
-
-Future<http.Response> sendDrinkRequest(String partyId, String person) {
-  return http.put('http://192.168.1.83:5000/parties/$partyId/people/$person');
+  void showInSnackBar(String value) {
+    if (_scaffoldKey.currentState != null) {
+      _scaffoldKey.currentState
+          .showSnackBar(new SnackBar(content: new Text(value)));
+    }
+  }
 }

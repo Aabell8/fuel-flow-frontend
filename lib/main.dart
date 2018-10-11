@@ -3,9 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fuelflow/dashboard.dart';
 import 'package:fuelflow/model/party.dart';
-
-import 'package:http/http.dart' as http;
-import 'dart:async';
+import 'package:fuelflow/service/requests.dart';
 
 void main() {
   runApp(new MyApp());
@@ -160,6 +158,3 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-Future<http.Response> fetchParty(String input) {
-  return http.get('http://192.168.1.83:5000/parties/$input');
-}
