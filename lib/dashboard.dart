@@ -129,7 +129,7 @@ class DashboardPageState extends State<DashboardPage> {
   void verifyDrink(Person person, String verifier) {
     http
         .put(
-            'http://ec2-18-224-171-112.us-east-2.compute.amazonaws.com:5000/parties/${party.id}/people/${person.id}/verify/$verifier')
+            'https://fuel-flow.herokuapp.com/parties/${party.id}/people/${person.id}/verify/$verifier')
         .then((response) {
       if (response.statusCode == 200) {
         setState(() {

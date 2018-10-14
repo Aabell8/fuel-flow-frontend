@@ -1,13 +1,13 @@
 import 'package:http/http.dart' as http;
 
-String baseUrl = "http://ec2-18-224-171-112.us-east-2.compute.amazonaws.com";
+String baseUrl = "https://fuel-flow.herokuapp.com";
 
 Future<http.Response> fetchParty(String input) {
-  return http.get('$baseUrl:5000/parties/$input');
+  return http.get('$baseUrl/parties/$input');
 }
 
 Future<http.Response> postParty() {
-  return http.post('$baseUrl:5000/parties/');
+  return http.post('$baseUrl/parties/');
 }
 
 Future<http.Response> postPerson(String partyId, String person) {
@@ -15,10 +15,10 @@ Future<http.Response> postPerson(String partyId, String person) {
     "id": person,
     "name": person,
   };
-  return http.put('$baseUrl:5000/parties/$partyId/people',
+  return http.put('$baseUrl/parties/$partyId/people',
       body: data);
 }
 
 Future<http.Response> sendDrinkRequest(String partyId, String person) {
-  return http.put('$baseUrl:5000/parties/$partyId/people/$person');
+  return http.put('$baseUrl/parties/$partyId/people/$person');
 }
